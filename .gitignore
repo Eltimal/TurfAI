@@ -1,0 +1,5 @@
+# Base complète avec cache brut : trop lourde pour git
+*.sqlite
+!donnees.sqlite
+__pycache__/
+*.log
