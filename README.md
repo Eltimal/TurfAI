@@ -25,6 +25,9 @@ Points à connaître :
   sinon placé international (courses étrangères).
 - **Quinté** : détecté par la présence d'un rapport Quinté+ dans les rapports définitifs.
 - Courses de moins de 8 partants et courses sans rapport placé : exclues.
+- **Disciplines étudiées : plat et trot attelé uniquement** (option `--disciplines`, par défaut `ATTELE,PLAT`).
+  Trot monté, haies, steeple et cross sont trop rares (moins de 50 courses de vérification) :
+  ils ne sont ni téléchargés ni comptés.
 
 ## Mise à jour chaque semaine
 

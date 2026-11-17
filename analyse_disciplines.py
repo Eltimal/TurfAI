@@ -160,10 +160,14 @@ def main():
 
     feats = ["top3_der3", "disq_der5", "pos_moy_der5", "inedit", "gagne_der"]
     lignes = []
+    ecartees = []
     for disc, g in df.groupby("discipline"):
         n_c = g["course_id"].nunique()
         tr, te = g[~g["test"]], g[g["test"]]
         n_te = te["course_id"].nunique()
+        if n_te < 50 or tr["course_id"].nunique() < 50:
+            ecartees.append(f"{disc} ({n_c} courses)")
+            continue  # trop peu de courses : non étudiée
         res = {"discipline": disc, "courses": n_c, "courses_test": n_te}
 
         # A. stratégie de base
@@ -173,11 +177,6 @@ def main():
             res[f"roi_{t}"] = st["retour"].sum() / st["mise"].sum() - 1 if len(st) else np.nan
             res[f"reussite_{t}"] = (st["retour"] > 0).mean() if len(st) else np.nan
         res["roi_total"] = s["retour"].sum() / s["mise"].sum() - 1
-
-        if n_te < 50 or tr["course_id"].nunique() < 50:
-            res["note"] = "trop peu de courses"
-            lignes.append(res)
-            continue
 
         y_te = te["place"].values
         # B. prévisibilité brute du public
@@ -208,6 +207,11 @@ def main():
         res["valeur_roi_ic90"] = f"[{lo:+.1%} ; {hi:+.1%}]" if len(gains) else ""
         lignes.append(res)
 
+    if ecartees:
+        print("Disciplines écartées (moins de 50 courses d'apprentissage ou de vérification) :", ", ".join(ecartees))
+    if not lignes:
+        print("Aucune discipline n'a assez de courses pour être étudiée.")
+        return
     out = pd.DataFrame(lignes).set_index("discipline")
     pd.set_option("display.width", 250, "display.max_columns", 40)
     print(f"Cotes utilisées : {args.cote} | courses : {df['course_id'].nunique()} | "

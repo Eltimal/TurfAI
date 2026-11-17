@@ -157,7 +157,11 @@ def main():
     ap.add_argument("--depuis", help="date de départ AAAA-MM-JJ (défaut : hier)")
     ap.add_argument("--relire-cache", action="store_true",
                     help="vide les tables calculées et les reconstruit depuis le cache (sans réseau pour les pages déjà vues)")
+    ap.add_argument("--disciplines", default="ATTELE,PLAT",
+                    help="disciplines étudiées, séparées par des virgules (vide = toutes). "
+                         "Les autres sont trop rares pour être analysées (< 50 courses de vérification).")
     args = ap.parse_args()
+    disciplines = {d.strip() for d in args.disciplines.split(",") if d.strip()}
 
     db = sqlite3.connect(args.db)
     db.executescript(SCHEMA)
@@ -180,6 +184,8 @@ def main():
                 for c in reunion["courses"]:
                     if not c.get("arriveeDefinitive"):
                         continue
+                    if disciplines and c.get("discipline") not in disciplines:
+                        continue  # discipline non étudiée : ni téléchargée ni comptée
                     res = traiter_course(client, db, d, reunion, c, reunion["hippodrome"])
                     db.commit()
                     if res is None:
