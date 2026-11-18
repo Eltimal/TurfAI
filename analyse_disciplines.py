@@ -28,7 +28,7 @@ TOKEN = re.compile(r"([0-9DTARN])([a-z])")
 
 
 def parse_musique(m):
-    if not m:
+    if not isinstance(m, str) or not m:
         return []
     m = re.sub(r"\(\d+\)", "", m)
     return [t[0] for t in TOKEN.findall(m)]  # plus récent en premier
